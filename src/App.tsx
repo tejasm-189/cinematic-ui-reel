@@ -182,7 +182,7 @@ export default function App() {
       const img = imgRefs.current![i];
       if (img) {
          // Subtle parallax drift
-         gsap.set(img, { yPercent: rel * 85, scale: 1.2 });
+         gsap.set(img, { yPercent: rel * 85, scale: 1 });
       }
 
       const textOverlay = textOverlayRefs.current![i];
@@ -226,15 +226,20 @@ export default function App() {
         targetProgressRef.current = progressObj.current!.value; // Sync target on interaction start
       },
       onRelease: (self) => {
-        // Snap to nearest integer with velocity
+        // Snap to nearest integer with velocity - inverted for drag
         let v = self.velocityY * 0.003;
         let p = progressObj.current!.value;
-        let target = Math.round(p + v); // Velocity added in same direction as delta
+        
+        // Use p - v because drag direction is inverted relative to deltaY
+        let target = Math.round(p - v); 
         
         // Acceleration logic: if we crossed 0.15 threshold in drag, push to next
         const diff = p - startProgress;
+        
+        // If diff is positive, we dragged "up" and progress increased. 
+        // We should snap forward (+ Math.sign).
         if (Math.abs(diff) > 0.15 || Math.abs(v) > 0.2) {
-           target = startProgress + Math.sign(diff || v);
+           target = startProgress + Math.sign(diff || -v);
         } else {
            target = Math.round(startProgress);
         }
@@ -243,8 +248,8 @@ export default function App() {
       },
       onChange: (self) => {
         if (self.isDragging) {
-           // Smooth drag accumulation
-           targetProgressRef.current = (targetProgressRef.current || 0) + (self.deltaY * 0.0015);
+           // Smooth drag accumulation - inverted for natural feel
+           targetProgressRef.current = (targetProgressRef.current || 0) - (self.deltaY * 0.0015);
 
            gsap.to(progressObj.current, {
              value: targetProgressRef.current,
@@ -319,7 +324,7 @@ export default function App() {
           <div 
             key={slide.id} 
               ref={(el: HTMLDivElement | null) => (slideRefs.current![i] = el)}
-            className="absolute left-3 right-3 md:left-8 md:right-8 lg:left-16 lg:right-16 top-[50dvh] h-[70vh] md:h-[75vh] lg:h-[78vh] rounded-[32px] md:rounded-[40px] overflow-hidden pointer-events-none z-10 will-change-transform border border-white/10 bg-[#111] shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+            className="absolute left-3 right-3 md:left-8 md:right-8 lg:left-16 lg:right-16 top-[50dvh] h-[70vh] md:h-[75vh] lg:h-[78vh] rounded-[32px] md:rounded-[40px] overflow-hidden pointer-events-none z-10 will-change-transform border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
           >
             <img 
               ref={(el: HTMLImageElement | null) => (imgRefs.current![i] = el)}
@@ -327,7 +332,6 @@ export default function App() {
               alt={slide.title} 
               className="absolute inset-0 w-full h-full object-cover" 
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/30" />
 
             {/* Content Overlay inside the card */}
             <div 
