@@ -187,23 +187,30 @@ export default function App() {
 
       const textOverlay = textOverlayRefs.current![i];
       if (textOverlay) {
-         // Ensure no extra blur or vintage filter is applied
-         gsap.set(textOverlay, { clearProps: "filter" });
+         // Apply dynamic blur based on distance from center
+         const blurAmount = Math.abs(rel) * 18; 
+         gsap.set(textOverlay, { 
+           filter: `blur(${blurAmount}px)`,
+           opacity: 1 - Math.min(Math.abs(rel) * 2.5, 1)
+         });
       }
     });
   };
 
-  const gotoSlide = (targetIndex: number, duration = 0.8) => {
+const gotoSlide = (targetIndex: number, duration = 0.8) => {
     if (animationRef.current) animationRef.current.kill();
     
     const safeTarget = resolveTargetProgress(targetIndex);
     setIndex(normalizeIndex(targetIndex));
-    targetProgressRef.current = safeTarget; // Sync smooth scroll target
+    targetProgressRef.current = safeTarget;
+    
+    const currentVal = progressObj.current!.value;
+    const dist = Math.abs(currentVal - safeTarget);
     
     animationRef.current = gsap.to(progressObj.current, {
       value: safeTarget,
-      duration,
-      ease: "power3.inOut",
+      duration: 1.0,
+      ease: "circOut",
       onUpdate: () => renderProgress(progressObj.current!.value)
     });
   };
@@ -244,42 +251,51 @@ export default function App() {
            target = Math.round(startProgress);
         }
         
-        gotoSlide(target, 0.6);
+        gotoSlide(target, 0.9);
       },
-      onChange: (self) => {
-        if (self.isDragging) {
-           // Smooth drag accumulation - inverted for natural feel
-           targetProgressRef.current = (targetProgressRef.current || 0) - (self.deltaY * 0.0015);
+onChange: (self) => {
+         if (self.isDragging) {
+            if (animationRef.current) animationRef.current.kill();
+            
+            // Smooth drag accumulation - inverted for natural feel
+            targetProgressRef.current = (targetProgressRef.current || 0) - (self.deltaY * 0.0015);
 
-           gsap.to(progressObj.current, {
-             value: targetProgressRef.current,
-             duration: 0.4,
-             ease: "power2.out",
-             overwrite: "auto",
-             onUpdate: () => renderProgress(progressObj.current!.value)
-           });
+animationRef.current = gsap.to(progressObj.current, {
+                value: targetProgressRef.current,
+                duration: 1.2,
+                ease: "power1.out",
+                overwrite: true,
+                onUpdate: () => renderProgress(progressObj.current!.value)
+              });
+              
+              if (wheelSnapTimeout.current) clearTimeout(wheelSnapTimeout.current);
+              wheelSnapTimeout.current = setTimeout(() => {
+                let target = Math.round(targetProgressRef.current || 0);
+                gotoSlide(target, 0.9);
+              }, 1300);
         }
       },
-      onWheel: (self) => {
-        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-        
-        // Smooth wheel accumulation
-        targetProgressRef.current = (targetProgressRef.current || 0) + (self.deltaY * 0.0012);
+onWheel: (self) => {
+         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+         if (animationRef.current) animationRef.current.kill();
+         
+         // Smooth wheel accumulation
+         targetProgressRef.current = (targetProgressRef.current || 0) + (self.deltaY * 0.0015);
 
-        gsap.to(progressObj.current, {
-           value: targetProgressRef.current,
-           duration: 0.6, // This creates the buttery smooth inertia scroll
-           ease: "power2.out",
-           overwrite: "auto",
-           onUpdate: () => renderProgress(progressObj.current!.value)
-        });
-
-        if (wheelSnapTimeout.current) clearTimeout(wheelSnapTimeout.current);
-        wheelSnapTimeout.current = setTimeout(() => {
-           let target = Math.round(targetProgressRef.current || 0);
-           gotoSlide(target, 0.5);
-        }, 150);
-      }
+animationRef.current = gsap.to(progressObj.current, {
+             value: targetProgressRef.current,
+             duration: 1.0,
+             ease: "power2.out",
+             overwrite: true,
+             onUpdate: () => renderProgress(progressObj.current!.value)
+          });
+          
+          if (wheelSnapTimeout.current) clearTimeout(wheelSnapTimeout.current);
+ wheelSnapTimeout.current = setTimeout(() => {
+              let target = Math.round(targetProgressRef.current || 0);
+              gotoSlide(target, 0.9);
+           }, 1100);
+       }
     });
 
     return () => {
