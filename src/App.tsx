@@ -12,98 +12,48 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const slides = [
-  {
-    id: 1,
-    title: "THE LONG QUIET",
-    director: "AMARA OKAFOR",
-    category: "OBSERVATIONAL",
-    year: "2024",
-    festival: "TIFF DOCS · PLATFORM 2024",
-    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2025&auto=format&fit=crop",
-  },
-  {
-    id: 2,
-    title: "ECHOES OF SAND",
-    director: "JULIAN DORN",
-    category: "EXPERIMENTAL",
-    year: "2023",
-    festival: "SUNDANCE · FRONTIERS",
-    image: "https://images.unsplash.com/photo-1440407876336-62333a6f010f?q=80&w=2074&auto=format&fit=crop",
-  },
-  {
-    id: 3,
-    title: "NIGHT VISIONS",
-    director: "ELARA VANCE",
-    category: "CINEMA VERITE",
-    year: "2024",
-    festival: "CANNES · UN CERTAIN REGARD",
-    image: "https://images.unsplash.com/photo-1514539079130-25950c84af65?q=80&w=2069&auto=format&fit=crop",
-  },
-  {
-    id: 4,
-    title: "VELVET SKY",
-    director: "MARCO SILVA",
-    category: "NARRATIVE",
-    year: "2025",
-    festival: "VENICE · COMPETITION",
-    image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop",
-  },
-  {
-    id: 5,
-    title: "STEEL & GLASS",
-    director: "CHEN WEI",
-    category: "DOCUMENTARY",
-    year: "2023",
-    festival: "BERLINALE · PANORAMA",
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 6,
-    title: "THE DRIFTER",
-    director: "SARAH LUND",
-    category: "ROAD MOVIE",
-    year: "2024",
-    festival: "TRIBECA · SPOTLIGHT",
-    image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop",
-  },
-  {
-    id: 7,
-    title: "NEON WHISPERS",
-    director: "DAVID KENT",
-    category: "SCI-FI SHORT",
-    year: "2025",
-    festival: "SXSW · MIDNIGHTERS",
-    image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop",
-  },
-  {
-    id: 8,
-    title: "WILD HEARTS",
-    director: "ANNA ROSSI",
-    category: "COMING OF AGE",
-    year: "2024",
-    festival: "LOCARNO · PIAZZA GRANDE",
-    image: "https://images.unsplash.com/photo-1511108690759-009324a5033e?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 9,
-    title: "SHADOW PLAY",
-    director: "KENJI SATO",
-    category: "THRILLER",
-    year: "2023",
-    festival: "BFI LONDON · GALA",
-    image: "https://images.unsplash.com/photo-1620580975618-80971b3e8e1a?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 10,
-    title: "LAST TRAIN",
-    director: "MIA ANDERSEN",
-    category: "DRAMA",
-    year: "2025",
-    festival: "ROTTERDAM · TIGER",
-    image: "https://images.unsplash.com/photo-1495344517868-8ebaf0a20445?q=80&w=1906&auto=format&fit=crop",
-  }
+const imageFiles = [
+  "image-1121789181016734.avif",
+  "image-1121789184350067.avif",
+  "image-1121789187683400.avif",
+  "image-1121789191016733.avif",
+  "image-1121790164349969.avif",
+  "image-1121790171016635.avif",
+  "image-1121791417683177.avif",
+  "image-1121793031016349.avif",
+  "image-1121793034349682.avif",
+  "image-1121793037683015.avif",
+  "image-1121793041016348.avif",
+  "image-1121794107682908.avif",
+  "image-1121794111016241.avif",
+  "image-1121794114349574.avif",
+  "image-1121794117682907.avif",
+  "image-1121794571016195.avif",
+  "image-1121795404349445.avif",
+  "image-1121796024349383.avif",
+  "image-1121796027682716.avif",
+  "image-1121796031016049.avif",
+  "image-1121796034349382.avif",
+  "image-1121796544349331.avif",
+  "image-1121796547682664.avif",
+  "image-1121796551015997.avif",
+  "image-1121796554349330.avif",
 ];
+
+const categories = ["OBSERVATIONAL", "EXPERIMENTAL", "CINEMA VERITE", "NARRATIVE", "DOCUMENTARY", "ROAD MOVIE", "SCI-FI SHORT", "COMING OF AGE", "THRILLER", "DRAMA"];
+const festivals = ["TIFF DOCS · PLATFORM", "SUNDANCE · FRONTIERS", "CANNES · UN CERTAIN REGARD", "VENICE · COMPETITION", "BERLINALE · PANORAMA", "TRIBECA · SPOTLIGHT", "SXSW · MIDNIGHTERS", "LOCARNO · PIAZZA GRANDE", "BFI LONDON · GALA", "ROTTERDAM · TIGER"];
+const directors = ["AMARA OKAFOR", "JULIAN DORN", "ELARA VANCE", "MARCO SILVA", "CHEN WEI", "SARAH LUND", "DAVID KENT", "ANNA ROSSI", "KENJI SATO", "MIA ANDERSEN"];
+const titles = ["THE LONG QUIET", "ECHOES OF SAND", "NIGHT VISIONS", "VELVET SKY", "STEEL & GLASS", "THE DRIFTER", "NEON WHISPERS", "WILD HEARTS", "SHADOW PLAY", "LAST TRAIN"];
+
+const slides = imageFiles.map((file, i) => ({
+  id: i + 1,
+  title: titles[i % titles.length],
+  director: directors[i % directors.length],
+  category: categories[i % categories.length],
+  year: String(2023 + (i % 3)),
+  festival: festivals[i % festivals.length],
+  image: `/images/${file}`,
+}));
 
 function CustomCursor({ isHovered }: { isHovered: boolean }) {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -184,7 +134,7 @@ export default function App() {
   const normalizeIndex = (value: number) => ((value % totalSlides) + totalSlides) % totalSlides;
 
   const getCircularDelta = (progress: number, slideIndex: number) => {
-    let delta = progress - slideIndex;
+    let delta = (progress - slideIndex) % totalSlides;
 
     if (delta > totalSlides / 2) delta -= totalSlides;
     if (delta < -totalSlides / 2) delta += totalSlides;
@@ -216,18 +166,10 @@ export default function App() {
       // -rel * 105 creates a 5% gap between slides. 
       const yPercent = -rel * 105 - 50;
       
-      // Calculate blur based on distance from center. Max blur at rel = 0.5 or -0.5
-      // 0 when rel = 0, 0 when rel = 1, peak at 0.5.
-      let blurMatch = 0;
-      if (Math.abs(rel) < 1) {
-         blurMatch = Math.sin(Math.abs(rel) * Math.PI) * 8; // up to 8px blur at half point
-      }
-      
-      // Scale and opacity
-      let scale = 1;
+      // Scale and opacity - hide only when completely off screen (>2)
       let opacity = 1;
-      if (Math.abs(rel) > 1) {
-         opacity = 0; // hide far away
+      if (Math.abs(rel) > 2) {
+         opacity = 0; 
       }
 
       gsap.set(slide, { 
@@ -239,16 +181,14 @@ export default function App() {
 
       const img = imgRefs.current![i];
       if (img) {
-         // Subtle parallax drift: image counters most (but not all) of the card's movement
-         // Countering by +85% against the card's -105% gives it a gentle, slow float.
-         // We also slightly scale the image so the translation doesn't expose the card's edges.
+         // Subtle parallax drift
          gsap.set(img, { yPercent: rel * 85, scale: 1.2 });
       }
 
       const textOverlay = textOverlayRefs.current![i];
       if (textOverlay) {
-         // Apply blur only to text overlay
-         gsap.set(textOverlay, { filter: `blur(${blurMatch}px)` });
+         // Ensure no extra blur or vintage filter is applied
+         gsap.set(textOverlay, { clearProps: "filter" });
       }
     });
   };
@@ -304,7 +244,7 @@ export default function App() {
       onChange: (self) => {
         if (self.isDragging) {
            // Smooth drag accumulation
-           targetProgressRef.current += (self.deltaY * 0.0015);
+           targetProgressRef.current = (targetProgressRef.current || 0) + (self.deltaY * 0.0015);
 
            gsap.to(progressObj.current, {
              value: targetProgressRef.current,
@@ -319,7 +259,7 @@ export default function App() {
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
         
         // Smooth wheel accumulation
-        targetProgressRef.current += (self.deltaY * 0.0012);
+        targetProgressRef.current = (targetProgressRef.current || 0) + (self.deltaY * 0.0012);
 
         gsap.to(progressObj.current, {
            value: targetProgressRef.current,
@@ -331,7 +271,7 @@ export default function App() {
 
         if (wheelSnapTimeout.current) clearTimeout(wheelSnapTimeout.current);
         wheelSnapTimeout.current = setTimeout(() => {
-           let target = Math.round(targetProgressRef.current);
+           let target = Math.round(targetProgressRef.current || 0);
            gotoSlide(target, 0.5);
         }, 150);
       }
