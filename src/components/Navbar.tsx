@@ -22,6 +22,11 @@ export function Navbar() {
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
   const [dispMap, setDispMap] = useState("");
 
+  // Clear hovered path on any navigation to ensure active state is correct
+  useEffect(() => {
+    setHoveredPath(null);
+  }, [location.pathname]);
+
   useEffect(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
