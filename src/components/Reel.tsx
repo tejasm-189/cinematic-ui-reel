@@ -249,41 +249,67 @@ export function Reel({ slides, showIntro = false }: ReelProps) {
                </div>
              </div>
 
-             <div className="flex flex-col md:flex-row justify-between items-center md:items-end pb-4 md:pb-8 gap-2 md:gap-8">
-                <div className="flex flex-col max-w-3xl flex-1">
-                  <div className="flex md:hidden flex-wrap gap-x-4 gap-y-1 text-white/50 font-sans tracking-[0.2em] text-[8px] uppercase mb-4">
+             {/* Content Header (Top HUD) - Restored and Brightened */}
+             <div className="absolute top-4 left-1/2 -translate-x-1/2 w-full px-8 flex justify-between items-start z-20 pointer-events-none opacity-90 text-glow">
+                <div className="flex flex-col gap-1 text-[7px] md:text-[9px] font-mono text-white tracking-[0.3em] uppercase">
+                  <span>SYSTEM_READY // ARCHIVE_{new Date().getFullYear()}</span>
+                </div>
+                <div className="hidden md:flex flex-col gap-1 text-[7px] md:text-[9px] font-mono text-white tracking-[0.3em] uppercase text-right">
+                  <span>SIGNAL_STABLE</span>
+                </div>
+             </div>
+
+             {/* Subtle bottom vignette for overall text grounding - NOT a card */}
+             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none z-0" />
+
+             <div className="flex flex-col items-center lg:items-start justify-end pb-8 md:pb-12 text-center lg:text-left z-10 relative h-full">
+                <div className="flex flex-col items-center lg:items-start max-w-[90%] lg:max-w-4xl">
+                  
+                  {/* Profile Image - Independent absolute position for maximum stability */}
+                  {slide.profileImage && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-10 md:top-12 lg:top-1/2 lg:-translate-y-1/2 lg:right-16 lg:left-auto lg:translate-x-0 z-20 group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30 rounded-[16px] md:rounded-[32px] blur-3xl opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+                      <div 
+                        className="relative rounded-[16px] md:rounded-[32px] overflow-hidden shadow-2xl backdrop-blur-sm transition-transform duration-500 group-hover:scale-105"
+                        style={{ 
+                          width: 'clamp(90px, 18vw, 250px)',
+                          height: 'clamp(120px, 24vw, 320px)'
+                        }}
+                      >
+                        <img 
+                          src={slide.profileImage} 
+                          alt={slide.title} 
+                          className="w-full h-full object-cover opacity-70 mix-blend-soft-light transition-opacity duration-700 group-hover:opacity-90"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex md:hidden flex-wrap justify-center lg:justify-start gap-x-4 gap-y-1 text-white/80 font-sans tracking-[0.2em] text-[8px] uppercase mb-4 text-glow">
                      <span>ID: {String(slide.id).padStart(4, '0')}</span>
                      <span>{slide.meta2}</span>
                   </div>
-                  <p className="font-sans text-[10px] md:text-xs uppercase tracking-[0.3em] mb-1 md:mb-4 text-white/70 font-medium">
+                  <p className="font-sans text-[clamp(0.6rem,1.5vw,0.8rem)] uppercase tracking-[0.3em] mb-2 md:mb-4 text-white/90 font-medium text-glow">
                     {slide.category}
                   </p>
-                  <h1 className="font-display text-3xl md:text-6xl lg:text-7xl leading-[1.1] tracking-tight m-0 text-white mb-2 md:mb-8 font-medium pt-1">
+                  <h1 
+                    className="font-display leading-[1.1] tracking-tight m-0 text-white mb-4 md:mb-10 font-normal pt-2 text-glow"
+                    style={{ fontSize: 'clamp(2.8rem, 8vw, 9rem)' }}
+                  >
                     {slide.title}
                   </h1>
                   {slide.description && (
-                    <p className="text-white/80 font-sans text-[10px] md:text-base leading-relaxed mb-2 md:mb-6 max-w-2xl bg-black/20 p-2 md:p-4 rounded-xl backdrop-blur-sm border border-white/10">
+                    <p 
+                      className="text-white font-sans leading-relaxed mb-6 md:mb-10 max-w-2xl font-light text-glow"
+                      style={{ fontSize: 'clamp(0.8rem, 1.8vw, 1.1rem)' }}
+                    >
                       {slide.description}
                     </p>
                   )}
-                  <div className="flex flex-col gap-1 font-sans text-[8px] md:text-xs uppercase tracking-[0.2em] text-white/60">
+                  <div className="flex flex-col gap-1 font-sans text-[clamp(0.6rem,1.5vw,0.8rem)] uppercase tracking-[0.2em] text-white/80 text-glow">
                      <span>FOCUS <span className="text-white ml-2 font-medium">{slide.subtitle}</span></span>
                   </div>
                 </div>
-
-                {/* Profile Image Overlay (if exists) */}
-                {slide.profileImage && (
-                  <div className="relative z-20 group shrink-0 self-center md:self-end mt-2 md:mt-0">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30 rounded-[12px] md:rounded-[32px] blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
-                    <div className="relative w-[80px] h-[110px] md:w-48 md:h-64 lg:w-56 lg:h-72 rounded-[12px] md:rounded-[32px] overflow-hidden border border-white/20 shadow-2xl backdrop-blur-sm transition-transform duration-500 group-hover:scale-105">
-                      <img 
-                        src={slide.profileImage} 
-                        alt={slide.title} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                )}
              </div>
           </div>
         </div>
