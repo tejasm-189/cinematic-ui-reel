@@ -72,32 +72,39 @@ function PageSlider({ isFirstVisit }: { isFirstVisit: boolean }) {
   }, [currentIndex, navigate, x]);
 
   const onDragEnd = (e: any, info: any) => {
-    const threshold = window.innerWidth / 4;
+    const threshold = window.innerWidth / 3;
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
-    if (offset < -threshold || velocity < -500) {
+    let targetIndex = currentIndex;
+
+    if (offset < -threshold || velocity < -800) {
       if (currentIndex < ROUTE_ORDER.length - 1) {
-        navigate(ROUTE_ORDER[currentIndex + 1]);
+        targetIndex = currentIndex + 1;
       }
-    } else if (offset > threshold || velocity > 500) {
+    } else if (offset > threshold || velocity > 800) {
       if (currentIndex > 0) {
-        navigate(ROUTE_ORDER[currentIndex - 1]);
+        targetIndex = currentIndex - 1;
       }
     }
     
-    // Animate back to the (potentially new) currentIndex position
-    animate(x, -currentIndex * window.innerWidth, {
-      type: "spring",
-      stiffness: 300,
-      damping: 30
-    });
+    if (targetIndex !== currentIndex) {
+      navigate(ROUTE_ORDER[targetIndex]);
+    } else {
+      // If we didn't switch pages, snap back to the current page
+      animate(x, -currentIndex * window.innerWidth, {
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      });
+    }
   };
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#0d0d0d]">
       <motion.div
         drag="x"
+        dragDirectionLock
         dragConstraints={{ 
           left: -(ROUTE_ORDER.length - 1) * window.innerWidth, 
           right: 0 
