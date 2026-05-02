@@ -19,6 +19,7 @@ export interface ReelSlide {
   meta1: string;
   meta2: string;
   image: string;
+  profileImage?: string; // New field for overlay photos
   description?: string;
 }
 
@@ -188,14 +189,34 @@ export function Reel({ slides }: ReelProps) {
             className="absolute inset-0 w-full h-full object-cover" 
           />
 
-          <div 
-            ref={(el: HTMLDivElement | null) => (textOverlayRefs.current![i] = el)}
-            className="absolute inset-0 p-8 md:p-12 lg:p-16 flex flex-col justify-between"
-          >
-            <div className="flex justify-between items-start pt-8">
-               <div className="flex flex-col gap-1 text-white/80 font-sans tracking-widest text-[10px] md:text-xs">
-                 <span>{slide.meta1}</span>
-                 <span>{slide.meta2.split('·')[0]}<br/>· {slide.meta2.split('·')[1]?.trim()}</span>
+            <div 
+              ref={(el: HTMLDivElement | null) => (textOverlayRefs.current![i] = el)}
+              className="absolute inset-0 p-8 md:p-12 lg:p-16 flex flex-col justify-between"
+            >
+              {/* Profile Image Overlay (if exists) */}
+              {slide.profileImage && (
+                <div className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-20 group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30 rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
+                  <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl backdrop-blur-sm transition-transform duration-500 group-hover:scale-105">
+                    <img 
+                      src={slide.profileImage} 
+                      alt={slide.title} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-between items-start pt-8">
+               <div className="flex flex-col gap-1 text-white/70 font-sans tracking-[0.2em] text-[10px] md:text-xs uppercase">
+                 <span>Project ID: {String(slide.id).padStart(4, '0')}</span>
+                 <span>Category: {slide.category}</span>
+                 <span>Focus: {slide.subtitle}</span>
+                 <span>Stack: {slide.meta2}</span>
+               </div>
+               <div className="text-white/40 font-mono text-[8px] md:text-[10px] tracking-tighter text-right">
+                  DECRYPTING_META_DATA...<br/>
+                  STATUS: SECURE
                </div>
             </div>
 
