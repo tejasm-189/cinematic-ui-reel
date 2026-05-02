@@ -8,8 +8,8 @@ const aboutSlides: ReelSlide[] = [
     category: "Profile",
     meta1: "Tejas M",
     meta2: "Developer · Auditor",
-    image: "/images/image-1121789184350067.avif", // Cinematic background
-    profileImage: "/images/tejas.jpg", // Overlayed photo
+    image: "/images/a-persons-small-silhouette-standing-on-a-high-glas.avif",
+    profileImage: "/images/tejas.jpg",
     description: "I'm a software engineer obsessed with the intersection of performance and privacy. My background in cryptography drives my approach to building modern web systems.",
   },
   {
@@ -19,7 +19,7 @@ const aboutSlides: ReelSlide[] = [
     category: "Focus",
     meta1: "Security",
     meta2: "Protection · Encryption",
-    image: "/images/image-1121790171016635.avif",
+    image: "/images/small-silhouette-of-a-person-walking-across-a-vast.avif",
     description: "From auditing smart contracts to architecting zero-trust applications, my passion lies in securing the digital landscape.",
   },
   {
@@ -29,7 +29,7 @@ const aboutSlides: ReelSlide[] = [
     category: "Skills",
     meta1: "Engineering",
     meta2: "SolidJS · Vinxi",
-    image: "/images/image-1121793037683015.avif",
+    image: "/images/image-1123073594221626.avif",
     description: "Specializing in fine-grained reactivity and server-side optimization to create applications that are as fast as they are secure.",
   },
   {
@@ -39,7 +39,7 @@ const aboutSlides: ReelSlide[] = [
     category: "Mindset",
     meta1: "2026",
     meta2: "Impact · Growth",
-    image: "/images/image-1121796024349383.avif",
+    image: "/images/image-1121416491054003.avif",
     description: "Every line of code I write is intentional, aimed at building a future where digital interactions are seamless, cinematic, and private by default.",
   }
 ];

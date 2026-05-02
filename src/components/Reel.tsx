@@ -102,7 +102,18 @@ export function Reel({ slides }: ReelProps) {
 
   useGSAP(() => {
     renderProgress(0);
-    let startProgress = 0;
+    // Intro Animation: Preview 5 scrolls and settle on first
+    const introTween = gsap.fromTo(progressObj.current, 
+      { value: -5 }, 
+      {
+        value: 0,
+        duration: 3.5,
+        delay: 0,
+        ease: "expo.inOut",
+        onUpdate: () => renderProgress(progressObj.current!.value)
+      }
+    );
+
     const observer = Observer.create({
       target: containerRef.current,
       type: "wheel,touch,pointer",
@@ -215,8 +226,34 @@ export function Reel({ slides }: ReelProps) {
                  <span>Stack: {slide.meta2}</span>
                </div>
                <div className="text-white/40 font-mono text-[8px] md:text-[10px] tracking-tighter text-right">
-                  DECRYPTING_META_DATA...<br/>
-                  STATUS: SECURE
+                  {[
+                    "DECRYPTING_META_DATA...",
+                    "BYPASSING_FIREWALL...",
+                    "ESTABLISHING_VPN...",
+                    "ANALYSING_PACKETS...",
+                    "INJECTING_PAYLOAD...",
+                    "OVERRIDING_SECURITY...",
+                    "ESCALATING_PRIVILEGES...",
+                    "CLEANING_TRACES...",
+                    "ENCRYPTING_TUNNEL...",
+                    "BRUTE_FORCING_HASH...",
+                    "INTERCEPTING_COMMS...",
+                    "MAPPING_NETWORK...",
+                    "EXFILTRATING_DATA...",
+                    "DECOMPILING_BINARY...",
+                    "PATCHING_KERNEL...",
+                    "ISOLATING_THREAD...",
+                    "MONITORING_UPLINK...",
+                    "SYNCING_DATABASE...",
+                    "RECOVERY_MODE_ACTIVE",
+                    "SIGNAL_STRENGTH_MAX",
+                    "UPLINK_ESTABLISHED",
+                    "DOWNLINK_STABLE",
+                    "NODES_VERIFIED",
+                    "ENCRYPTION_SET",
+                    "ACCESS_GRANTED"
+                  ][i % 25]}<br/>
+                  STATUS: {i % 5 === 0 ? "SECURE" : i % 3 === 0 ? "ACTIVE" : "PENDING"}
                </div>
             </div>
 
@@ -248,15 +285,19 @@ export function Reel({ slides }: ReelProps) {
            {String(normalizeIndex(index) + 1).padStart(2, '0')}
          </span>
          <div className="flex flex-col gap-2 my-2">
-            {slides.map((_, i) => (
-               <div 
-                  key={i} 
-                  className={cn(
-                     "w-1 h-1 rounded-full bg-white transition-all duration-300",
-                     index === i ? "opacity-100 scale-150" : "opacity-30"
-                  )}
-               />
-            ))}
+            {Array.from({ length: 7 }).map((_, i) => {
+               const isActive = (index % 7) === i;
+
+               return (
+                  <div 
+                     key={i} 
+                     className={cn(
+                        "w-1 h-1 rounded-full bg-white transition-all duration-300",
+                        isActive ? "opacity-100 scale-150" : "opacity-30"
+                     )}
+                  />
+               );
+            })}
          </div>
          <span className="opacity-70">
            {String(slides.length).padStart(2, '0')}
