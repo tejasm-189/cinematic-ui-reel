@@ -25,9 +25,10 @@ export interface ReelSlide {
 
 interface ReelProps {
   slides: ReelSlide[];
+  showIntro?: boolean;
 }
 
-export function Reel({ slides }: ReelProps) {
+export function Reel({ slides, showIntro = false }: ReelProps) {
   const [index, setIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const wheelSnapTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -37,6 +38,7 @@ export function Reel({ slides }: ReelProps) {
   const targetProgressRef = useRef(0);
   const animationRef = useRef<gsap.core.Tween | null>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const startProgressRef = useRef(0);
 
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
@@ -102,17 +104,20 @@ export function Reel({ slides }: ReelProps) {
 
   useGSAP(() => {
     renderProgress(0);
-    // Intro Animation: Preview 5 scrolls and settle on first
-    const introTween = gsap.fromTo(progressObj.current, 
-      { value: -5 }, 
-      {
-        value: 0,
-        duration: 3.5,
-        delay: 0,
-        ease: "expo.inOut",
-        onUpdate: () => renderProgress(progressObj.current!.value)
-      }
-    );
+    
+    // Intro Animation: Only if showIntro is true
+    if (showIntro) {
+      gsap.fromTo(progressObj.current, 
+        { value: -5 }, 
+        {
+          value: 0,
+          duration: 3.5,
+          delay: 0,
+          ease: "expo.inOut",
+          onUpdate: () => renderProgress(progressObj.current!.value)
+        }
+      );
+    }
 
     const observer = Observer.create({
       target: containerRef.current,
@@ -122,18 +127,18 @@ export function Reel({ slides }: ReelProps) {
       onPress: () => {
         if (animationRef.current) animationRef.current.kill();
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-        startProgress = progressObj.current!.value;
+        startProgressRef.current = progressObj.current!.value;
         targetProgressRef.current = progressObj.current!.value;
       },
       onRelease: (self) => {
         let v = self.velocityY * 0.003;
         let p = progressObj.current!.value;
         let target = Math.round(p - v); 
-        const diff = p - startProgress;
+        const diff = p - startProgressRef.current;
         if (Math.abs(diff) > 0.15 || Math.abs(v) > 0.2) {
-           target = startProgress + Math.sign(diff || -v);
+           target = startProgressRef.current + Math.sign(diff || -v);
         } else {
-           target = Math.round(startProgress);
+           target = Math.round(startProgressRef.current);
         }
         gotoSlide(target, 0.9);
       },
@@ -191,7 +196,7 @@ export function Reel({ slides }: ReelProps) {
         <div 
           key={slide.id} 
           ref={(el: HTMLDivElement | null) => (slideRefs.current![i] = el)}
-          className="absolute left-3 right-3 md:left-8 md:right-8 lg:left-16 lg:right-16 top-[50dvh] h-[70vh] md:h-[75vh] lg:h-[78vh] rounded-[32px] md:rounded-[40px] overflow-hidden pointer-events-none z-10 will-change-transform border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+          className="absolute left-3 right-3 md:left-8 md:right-8 lg:left-16 lg:right-16 top-[50dvh] h-[82vh] md:h-[75vh] lg:h-[78vh] rounded-[32px] md:rounded-[40px] overflow-hidden pointer-events-none z-10 will-change-transform border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
         >
           <img 
             ref={(el: HTMLImageElement | null) => (imgRefs.current![i] = el)}
@@ -204,28 +209,15 @@ export function Reel({ slides }: ReelProps) {
               ref={(el: HTMLDivElement | null) => (textOverlayRefs.current![i] = el)}
               className="absolute inset-0 p-8 md:p-12 lg:p-16 flex flex-col justify-between"
             >
-              {/* Profile Image Overlay (if exists) */}
-              {slide.profileImage && (
-                <div className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-20 group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30 rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
-                  <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl backdrop-blur-sm transition-transform duration-500 group-hover:scale-105">
-                    <img 
-                      src={slide.profileImage} 
-                      alt={slide.title} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-              )}
 
-              <div className="flex justify-between items-start pt-8">
-               <div className="flex flex-col gap-1 text-white/70 font-sans tracking-[0.2em] text-[10px] md:text-xs uppercase">
+              <div className="flex justify-end items-start pt-12 md:pt-0">
+               <div className="hidden lg:flex flex-col gap-1 text-white/70 font-sans tracking-[0.2em] text-[10px] md:text-xs uppercase max-w-[40%] mr-auto">
                  <span>Project ID: {String(slide.id).padStart(4, '0')}</span>
                  <span>Category: {slide.category}</span>
                  <span>Focus: {slide.subtitle}</span>
                  <span>Stack: {slide.meta2}</span>
                </div>
-               <div className="text-white/40 font-mono text-[8px] md:text-[10px] tracking-tighter text-right">
+               <div className="text-white/40 font-mono text-[8px] md:text-[10px] tracking-tighter text-right pt-4 md:pt-0">
                   {[
                     "DECRYPTING_META_DATA...",
                     "BYPASSING_FIREWALL...",
@@ -255,26 +247,44 @@ export function Reel({ slides }: ReelProps) {
                   ][i % 25]}<br/>
                   STATUS: {i % 5 === 0 ? "SECURE" : i % 3 === 0 ? "ACTIVE" : "PENDING"}
                </div>
-            </div>
+             </div>
 
-            <div className="flex justify-between items-end pb-8">
-               <div className="flex flex-col max-w-3xl">
-                 <p className="font-sans text-[10px] md:text-xs uppercase tracking-[0.3em] mb-4 text-white/70 font-medium">
-                   {slide.category}
-                 </p>
-                 <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[0.9] tracking-tight m-0 text-white mb-6 md:mb-8 font-medium">
-                   {slide.title}
-                 </h1>
-                 {slide.description && (
-                   <p className="text-white/80 font-sans text-sm md:text-base leading-relaxed mb-6 max-w-2xl bg-black/20 p-4 rounded-xl backdrop-blur-sm border border-white/10">
-                     {slide.description}
-                   </p>
-                 )}
-                 <div className="flex flex-col gap-1 font-sans text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/60">
-                    <span>FOCUS <span className="text-white ml-2 font-medium">{slide.subtitle}</span></span>
-                 </div>
-               </div>
-            </div>
+             <div className="flex flex-col md:flex-row justify-between items-center md:items-end pb-4 md:pb-8 gap-2 md:gap-8">
+                <div className="flex flex-col max-w-3xl flex-1">
+                  <div className="flex md:hidden flex-wrap gap-x-4 gap-y-1 text-white/50 font-sans tracking-[0.2em] text-[8px] uppercase mb-4">
+                     <span>ID: {String(slide.id).padStart(4, '0')}</span>
+                     <span>{slide.meta2}</span>
+                  </div>
+                  <p className="font-sans text-[10px] md:text-xs uppercase tracking-[0.3em] mb-1 md:mb-4 text-white/70 font-medium">
+                    {slide.category}
+                  </p>
+                  <h1 className="font-display text-3xl md:text-6xl lg:text-7xl leading-[1.1] tracking-tight m-0 text-white mb-2 md:mb-8 font-medium pt-1">
+                    {slide.title}
+                  </h1>
+                  {slide.description && (
+                    <p className="text-white/80 font-sans text-[10px] md:text-base leading-relaxed mb-2 md:mb-6 max-w-2xl bg-black/20 p-2 md:p-4 rounded-xl backdrop-blur-sm border border-white/10">
+                      {slide.description}
+                    </p>
+                  )}
+                  <div className="flex flex-col gap-1 font-sans text-[8px] md:text-xs uppercase tracking-[0.2em] text-white/60">
+                     <span>FOCUS <span className="text-white ml-2 font-medium">{slide.subtitle}</span></span>
+                  </div>
+                </div>
+
+                {/* Profile Image Overlay (if exists) */}
+                {slide.profileImage && (
+                  <div className="relative z-20 group shrink-0 self-center md:self-end mt-2 md:mt-0">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30 rounded-[12px] md:rounded-[32px] blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+                    <div className="relative w-[80px] h-[110px] md:w-48 md:h-64 lg:w-56 lg:h-72 rounded-[12px] md:rounded-[32px] overflow-hidden border border-white/20 shadow-2xl backdrop-blur-sm transition-transform duration-500 group-hover:scale-105">
+                      <img 
+                        src={slide.profileImage} 
+                        alt={slide.title} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+             </div>
           </div>
         </div>
       ))}

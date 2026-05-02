@@ -53,6 +53,6 @@ const projectsSlides: ReelSlide[] = [
   }
 ];
 
-export function Projects() {
-  return <Reel slides={projectsSlides} />;
+export function Projects({ showIntro }: { showIntro?: boolean }) {
+  return <Reel slides={projectsSlides} showIntro={showIntro} />;
 }

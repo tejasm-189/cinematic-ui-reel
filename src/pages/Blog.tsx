@@ -43,6 +43,6 @@ const blogSlides: ReelSlide[] = [
   }
 ];
 
-export function Blog() {
-  return <Reel slides={blogSlides} />;
+export function Blog({ showIntro }: { showIntro?: boolean }) {
+  return <Reel slides={blogSlides} showIntro={showIntro} />;
 }

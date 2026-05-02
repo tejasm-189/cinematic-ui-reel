@@ -28,6 +28,6 @@ const homeSlides: ReelSlide[] = [
   { id: 25, title: "The Award Vision", subtitle: "Future Tech", category: "Philosophy", meta1: "2026", meta2: "Innovation · UX", image: "/images/image-1121789184350067.avif", description: "Creating the next generation of award-winning digital artifacts." }
 ];
 
-export function Home() {
-  return <Reel slides={homeSlides} />;
+export function Home({ showIntro }: { showIntro?: boolean }) {
+  return <Reel slides={homeSlides} showIntro={showIntro} />;
 }
