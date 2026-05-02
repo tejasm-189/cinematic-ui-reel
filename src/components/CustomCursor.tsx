@@ -10,14 +10,17 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-import { LiquidGlass } from '@liquidglass/react';
-
 export function CustomCursor() {
   const [isHovered, setIsHovered] = useState(false);
+  const [isPrecisePointer, setIsPrecisePointer] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   const [dispMap, setDispMap] = useState("");
 
   useEffect(() => {
+    const checkPointer = () => setIsPrecisePointer(window.matchMedia('(pointer: fine)').matches);
+    checkPointer();
+    window.addEventListener('resize', checkPointer);
+
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
@@ -63,10 +66,15 @@ export function CustomCursor() {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('resize', checkPointer);
+    };
   }, []);
 
   useGSAP(() => {
+    if (!isPrecisePointer) return;
+
     gsap.set(cursorRef.current, { xPercent: -50, yPercent: -50 });
     let xTo = gsap.quickTo(cursorRef.current, "x", { duration: 0.1, ease: "power3" });
     let yTo = gsap.quickTo(cursorRef.current, "y", { duration: 0.1, ease: "power3" });
@@ -88,7 +96,9 @@ export function CustomCursor() {
       window.removeEventListener("mousedown", downMouse);
       window.removeEventListener("mouseup", upMouse);
     };
-  }, { scope: cursorRef, dependencies: [] });
+  }, { scope: cursorRef, dependencies: [isPrecisePointer] });
+
+  if (!isPrecisePointer) return null;
 
   return (
     <>
@@ -96,7 +106,6 @@ export function CustomCursor() {
         <filter id="cursor-mag-filter" colorInterpolationFilters="sRGB">
           <feImage href={dispMap} x="0" y="0" width="100%" height="100%" result="map" />
           <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="G" scale="60" />
-          {/* Blur removed for crystal clarity */}
         </filter>
       </svg>
 
@@ -104,7 +113,7 @@ export function CustomCursor() {
         ref={cursorRef}
         className={cn(
           "fixed pointer-events-none z-[9999] flex items-center justify-center top-0 left-0 transition-all duration-300 ease-out",
-          isHovered ? "w-[60px] h-[60px]" : "w-[120px] h-[120px]" // Reversed: now shrinks on hover
+          isHovered ? "w-[60px] h-[60px]" : "w-[120px] h-[120px]"
         )}
       >
         <div 

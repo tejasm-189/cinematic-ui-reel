@@ -54,8 +54,14 @@ export function Reel({ slides, showIntro = false }: ReelProps) {
   };
 
   const resolveTargetProgress = (targetIndex: number) => {
-    const normalizedTarget = normalizeIndex(targetIndex);
     const currentProgress = progressObj.current!.value;
+    // For large jumps (like high-velocity flicks), we don't want the "shortest path" logic
+    // to kick in and reverse our direction. We only use shortest-path for small snaps.
+    if (Math.abs(targetIndex - currentProgress) > 2) {
+      return targetIndex;
+    }
+    
+    const normalizedTarget = normalizeIndex(targetIndex);
     let targetProgress = Math.round(currentProgress / totalSlides) * totalSlides + normalizedTarget;
     if (targetProgress - currentProgress > totalSlides / 2) targetProgress -= totalSlides;
     if (targetProgress - currentProgress < -totalSlides / 2) targetProgress += totalSlides;
@@ -131,51 +137,57 @@ export function Reel({ slides, showIntro = false }: ReelProps) {
         targetProgressRef.current = progressObj.current!.value;
       },
       onRelease: (self) => {
-        let v = self.velocityY * 0.003;
+        let v = self.velocityY * 0.003; // Standard glide multiplier
         let p = progressObj.current!.value;
         let target = Math.round(p - v); 
+        
+        // If it was a very small movement, snap back to the start position
         const diff = p - startProgressRef.current;
-        if (Math.abs(diff) > 0.15 || Math.abs(v) > 0.2) {
-           target = startProgressRef.current + Math.sign(diff || -v);
-        } else {
+        if (Math.abs(diff) < 0.05 && Math.abs(v) < 0.1) {
            target = Math.round(startProgressRef.current);
         }
-        gotoSlide(target, 0.9);
+        
+        gotoSlide(target, 0.8);
       },
       onChange: (self) => {
         if (self.isDragging) {
             if (animationRef.current) animationRef.current.kill();
-            targetProgressRef.current = (targetProgressRef.current || 0) - (self.deltaY * 0.0015);
+            const multiplier = 1 / (window.innerHeight || 800);
+            const delta = self.deltaY * multiplier; 
+            targetProgressRef.current = (targetProgressRef.current || progressObj.current!.value) - delta;
+            
             animationRef.current = gsap.to(progressObj.current, {
                 value: targetProgressRef.current,
-                duration: 1.2,
-                ease: "power1.out",
+                duration: 0.4,
+                ease: "power2.out",
                 overwrite: true,
                 onUpdate: () => renderProgress(progressObj.current!.value)
             });
+            
             if (wheelSnapTimeout.current) clearTimeout(wheelSnapTimeout.current);
             wheelSnapTimeout.current = setTimeout(() => {
                 let target = Math.round(targetProgressRef.current || 0);
-                gotoSlide(target, 0.9);
-            }, 1300);
+                gotoSlide(target, 0.8);
+            }, 800);
         }
       },
       onWheel: (self) => {
-         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-         if (animationRef.current) animationRef.current.kill();
-         targetProgressRef.current = (targetProgressRef.current || 0) + (self.deltaY * 0.0015);
-         animationRef.current = gsap.to(progressObj.current, {
-             value: targetProgressRef.current,
-             duration: 1.0,
-             ease: "power2.out",
-             overwrite: true,
-             onUpdate: () => renderProgress(progressObj.current!.value)
-          });
-          if (wheelSnapTimeout.current) clearTimeout(wheelSnapTimeout.current);
-          wheelSnapTimeout.current = setTimeout(() => {
-              let target = Math.round(targetProgressRef.current || 0);
-              gotoSlide(target, 0.9);
-           }, 1100);
+          if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+          if (animationRef.current) animationRef.current.kill();
+          const multiplier = 1 / (window.innerHeight || 800);
+          targetProgressRef.current = (targetProgressRef.current || 0) + (self.deltaY * multiplier);
+          animationRef.current = gsap.to(progressObj.current, {
+              value: targetProgressRef.current,
+              duration: 0.6,
+              ease: "power2.out",
+              overwrite: true,
+              onUpdate: () => renderProgress(progressObj.current!.value)
+           });
+           if (wheelSnapTimeout.current) clearTimeout(wheelSnapTimeout.current);
+           wheelSnapTimeout.current = setTimeout(() => {
+               let target = Math.round(targetProgressRef.current || 0);
+               gotoSlide(target, 0.8);
+            }, 800);
        }
     });
 
@@ -315,12 +327,12 @@ export function Reel({ slides, showIntro = false }: ReelProps) {
         </div>
       ))}
       
-      {/* Pagination Right Edge */}
-      <div className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-40 pointer-events-none rounded-full p-2 py-6 md:p-3 md:py-8 text-white/70 font-sans text-xs bg-black/20 backdrop-blur-xl border border-white/10">
-         <span className="opacity-70">
+      {/* Pagination Right Edge - Optimized for mobile */}
+      <div className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 md:gap-4 z-40 pointer-events-none rounded-full p-1.5 py-4 md:p-3 md:py-8 text-white/70 font-sans text-[8px] md:text-xs bg-black/10 md:bg-black/20 backdrop-blur-md md:backdrop-blur-xl border border-white/5 md:border-white/10">
+         <span className="opacity-40 md:opacity-70">
            {String(normalizeIndex(index) + 1).padStart(2, '0')}
          </span>
-         <div className="flex flex-col gap-2 my-2">
+         <div className="flex flex-col gap-1.5 md:gap-2 my-1 md:my-2">
             {Array.from({ length: 7 }).map((_, i) => {
                const isActive = (index % 7) === i;
 
@@ -328,14 +340,14 @@ export function Reel({ slides, showIntro = false }: ReelProps) {
                   <div 
                      key={i} 
                      className={cn(
-                        "w-1 h-1 rounded-full bg-white transition-all duration-300",
-                        isActive ? "opacity-100 scale-150" : "opacity-30"
+                        "w-0.5 h-1 md:w-1 md:h-1 rounded-full bg-white transition-all duration-300",
+                        isActive ? "opacity-100 scale-125 h-2 md:h-1 md:scale-150" : "opacity-20 md:opacity-30"
                      )}
                   />
                );
             })}
          </div>
-         <span className="opacity-70">
+         <span className="opacity-40 md:opacity-70">
            {String(slides.length).padStart(2, '0')}
          </span>
       </div>
