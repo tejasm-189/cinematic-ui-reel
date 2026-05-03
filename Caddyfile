@@ -1,0 +1,6 @@
+tejasm.dev, www.tejasm.dev {
+    tls internal
+    root * /var/www/tejasm.dev/dist
+    file_server
+    try_files {path} /index.html
+}
